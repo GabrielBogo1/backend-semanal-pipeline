@@ -71,7 +71,7 @@ jobs:
           kubectl apply -f k8s/backend/
 
   release:
-    if: startsWith(github.ref, 'refs/heads/release/')
+    if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
