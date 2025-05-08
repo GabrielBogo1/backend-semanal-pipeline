@@ -6,10 +6,6 @@ on:
       - dev
       - main
       - release/*
-  pull_request:
-    branches:
-      - release/*
-
 jobs:
   tests:
     runs-on: ubuntu-latest
