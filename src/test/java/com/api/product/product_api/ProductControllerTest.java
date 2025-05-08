@@ -1,9 +1,6 @@
-package com.listadecompras.listacompras;
+package com.api.product.product_api;
 
-import com.listadecompras.listacompras.controller.ProductController;
-import com.listadecompras.listacompras.entity.Product;
-import com.listadecompras.listacompras.repository.ProductRepository;
-import com.listadecompras.listacompras.service.ProductService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +10,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.api.product.product_api.controller.ProductController;
+import com.api.product.product_api.entity.Product;
+import com.api.product.product_api.repository.ProductRepository;
+import com.api.product.product_api.service.ProductService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
