@@ -107,7 +107,6 @@ jobs:
 
       - name: Notificação Slack
         uses: slackapi/slack-github-action@v1.24.0
-        with:
-          payload: '{"text":"Nova release publicada para pré-produção: ${{ github.ref }}"}'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: "Nova release publicada para pré-produção: ${{ github.ref }}"
