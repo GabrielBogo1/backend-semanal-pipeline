@@ -37,6 +37,11 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
+    @GetMapping("/health")
+    public ResponseEntity<String> checkHealth() {
+        return ResponseEntity.ok("API funcionando corretamente.");
+    }
+
     @GetMapping
     public ResponseEntity<List<Product>> listAll() {
         return ResponseEntity.ok(this.productRepository.findAll());
