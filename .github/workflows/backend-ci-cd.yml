@@ -32,6 +32,8 @@ jobs:
     needs: tests
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
+    container:
+      image: google/cloud-sdk:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,11 +42,6 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Instalar gke-gcloud-auth-plugin
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
 
       - name: Configurar kubectl e fazer deploy
         run: |
@@ -56,6 +53,8 @@ jobs:
     needs: tests
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    container:
+      image: google/cloud-sdk:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -64,11 +63,6 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Instalar gke-gcloud-auth-plugin
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
 
       - name: Configurar kubectl e fazer deploy
         run: |
