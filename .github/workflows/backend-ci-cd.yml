@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - main
+      - release/*
   pull_request:
     branches:
       - release/*
@@ -71,7 +72,7 @@ jobs:
           kubectl apply -f k8s/backend/
 
   release:
-    if: github.ref == 'refs/heads/dev'
+    if: startsWith(github.ref, 'refs/heads/release/')    
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
