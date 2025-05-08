@@ -74,6 +74,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Build do JAR com Maven
+        run: ./mvnw package -DskipTests
+
       - name: Autenticar com GCP
         uses: google-github-actions/auth@v1
         with:
