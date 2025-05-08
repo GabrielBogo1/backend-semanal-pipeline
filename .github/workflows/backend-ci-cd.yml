@@ -106,10 +106,14 @@ jobs:
           docker tag backend-kubernetes2:release-${{ github.sha }} us-central1-a-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:release-${{ github.sha }}
           docker push us-central1-a-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:release-${{ github.sha }}
 
+      - name: Criar payload do Slack
+        run: |
+          echo "{\"text\":\"Nova release publicada para pré-produção: ${{ github.ref }}\"}" > slack-payload.json
+
       - name: Notificação Slack
         uses: slackapi/slack-github-action@v1.24.0
         with:
-          text: "Nova release publicada para pré-produção: ${{ github.ref }}"
+          payload-file-path: ./slack-payload.json
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
