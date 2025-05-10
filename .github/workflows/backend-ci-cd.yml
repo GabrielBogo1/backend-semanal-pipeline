@@ -23,8 +23,7 @@ jobs:
 
       - name: Rodar testes
         run: ./mvnw test
-
-  deploy-stage:
+        
     deploy-stage:
     needs: tests
     if: github.ref == 'refs/heads/dev'
