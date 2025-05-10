@@ -62,7 +62,7 @@ jobs:
           docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
 
       - name: Deploy para GKE
-        uses: google-github-actions/deploy-gke@v1 # Use uma versão específica aqui
+        uses: google-github-actions/deploy-gke@main # Use uma versão específica aqui
         env:
           CLUSTER_NAME: meu-cluster-cicd
           GKE_LOCATION: us-central1-a
