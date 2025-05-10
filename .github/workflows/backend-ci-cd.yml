@@ -65,6 +65,14 @@ jobs:
 
       - name: Configurar kubectl e fazer deploy
         run: |
+          # Instalar o gke-gcloud-auth-plugin
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/gke-gcloud-auth-plugin
+          chmod +x ./gke-gcloud-auth-plugin
+          sudo mv ./gke-gcloud-auth-plugin /usr/local/bin
+
           gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
           kubectl config set-context --current --namespace=stage
           kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
@@ -86,6 +94,14 @@ jobs:
 
       - name: Configurar kubectl e fazer deploy
         run: |
+          # Instalar o gke-gcloud-auth-plugin
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/gke-gcloud-auth-plugin
+          chmod +x ./gke-gcloud-auth-plugin
+          sudo mv ./gke-gcloud-auth-plugin /usr/local/bin
+
           gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
           kubectl config set-context --current --namespace=production
           kubectl apply -f k8s/backend/
