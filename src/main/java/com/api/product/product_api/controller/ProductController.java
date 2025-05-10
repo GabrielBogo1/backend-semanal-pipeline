@@ -37,6 +37,8 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
+
+    //teste
     @GetMapping("/health")
     public ResponseEntity<String> checkHealth() {
         return ResponseEntity.ok("API funcionando corretamente.");
