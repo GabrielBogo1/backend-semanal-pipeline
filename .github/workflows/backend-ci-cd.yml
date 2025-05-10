@@ -61,7 +61,7 @@ jobs:
           gcloud auth configure-docker us-central1-docker.pkg.dev
           docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
 
-      deploy-stage:
+  deploy-stage:
     needs: tests
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
