@@ -22,7 +22,7 @@ jobs:
         run: chmod +x ./mvnw
 
       - name: Rodar testes
-        run: ./mvnw test
+        run: ./mvnw test -Dspring.profiles.active=test
 
   deploy-stage:
     needs: tests
