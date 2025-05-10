@@ -65,11 +65,9 @@ jobs:
 
       - name: Configurar kubectl e fazer deploy
         run: |
-          # Instalar o componente gke-gcloud-auth-plugin
-          gcloud components install gke-gcloud-auth-plugin --quiet
-
-          # Adicionar o diretório do gcloud ao PATH
-          echo "$HOME/.config/google-cloud-sdk/bin" >> $GITHUB_PATH
+          # Instalar o componente gke-gcloud-auth-plugin usando apt-get
+          sudo apt-get update
+          sudo apt-get install -y google-cloud-cli-gke-gcloud-auth-plugin
 
           gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
           kubectl config set-context --current --namespace=stage
