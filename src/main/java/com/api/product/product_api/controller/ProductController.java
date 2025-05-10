@@ -38,7 +38,7 @@ public class ProductController {
     }
 
  
-    //teste3dwqdqwdwqdqwdwqdwqdwqdqwdqwdqwdqwdqwdqwdasdasdqwwdqdqwdqwdsadwqdwqdqdqwwdwqdwqdqwdqwddwqpopdwqwqdqwdqwdwqqdwdqwqwdqwdqwdqwddqwdwqdsadasdasdasdasddasdasdasdasdadqwdqwsadsasdas
+    //teste3dwqdqwdwqdqwdwqdwqdwqdqwdqwdqwdqwdqwdqwdasdasdqwwdqdqwdqwdsadwqdwqdqdqwwdwqdwdqwqdqwdqwddwqpopdwqwqdqwdqwdwqqdwdqwqwdqwdqwdqwddqwdwqdsadasdasdasdasddasdasdasdasdadqwdqwsadsasdas
     @GetMapping("/health")
     public ResponseEntity<String> checkHealth() {
         return ResponseEntity.ok("API funcionando corretamente.");
