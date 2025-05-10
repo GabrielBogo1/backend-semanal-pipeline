@@ -54,7 +54,7 @@ public class ProductController {
 
     //@GetMapping
     //public ResponseEntity<List<Product>> listAll() {
-      //  return ResponseEntity.ok(this.productRepository.findAll());dwqdqwdqwdwqdwq
+      //  return ResponseEntity.ok(this.productRepository.findAll());dwqdqwdqwdwqdwqdwqdwq
     //}
 
     @PostMapping
