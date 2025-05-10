@@ -86,6 +86,9 @@ jobs:
 
       - name: Configurar kubectl e fazer deploy
         run: |
+          # Instalar o componente gke-gcloud-auth-plugin
+          gcloud components install gke-gcloud-auth-plugin --quiet
+
           gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
           kubectl config set-context --current --namespace=production
           kubectl apply -f k8s/backend/
