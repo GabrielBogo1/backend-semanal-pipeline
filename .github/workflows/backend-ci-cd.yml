@@ -62,21 +62,21 @@ jobs:
           docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
 
       - name: Deploy para GKE
-        uses: google-github-actions/deploy-gke@main # Use uma versão específica aqui
+        uses: google-github-actions/deploy-gke@main
         env:
           CLUSTER_NAME: meu-cluster-cicd
-          LOCATION: us-central1-a # Alterado de GKE_LOCATION para LOCATION
-          IMAGE: us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} # Alterado de GKE_IMAGE para IMAGE
-          NAMESPACE: stage # Alterado de GKE_NAMESPACE para NAMESPACE
-          APP_NAME: backend # Alterado de GKE_APP_NAME para APP_NAME
-          PROJECT_ID: cluster-mensal # Alterado de GKE_PROJECT_ID para PROJECT_ID
+          REGION: us-central1-a # Alterado de LOCATION para REGION
+          IMAGE: us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
+          NAMESPACE: stage
+          APP_NAME: backend
+          PROJECT_ID: cluster-mensal
         with:
           cluster_name: ${{ env.CLUSTER_NAME }}
-          location: ${{ env.LOCATION }} # Alterado de GKE_LOCATION para LOCATION
-          image: ${{ env.IMAGE }} # Alterado de GKE_IMAGE para IMAGE
-          namespace: ${{ env.NAMESPACE }} # Alterado de GKE_NAMESPACE para NAMESPACE
-          app_name: ${{ env.APP_NAME }} # Alterado de GKE_APP_NAME para APP_NAME
-          project_id: ${{ env.PROJECT_ID }} # Alterado de GKE_PROJECT_ID para PROJECT_ID
+          region: ${{ env.REGION }} # Alterado de LOCATION para REGION
+          image: ${{ env.IMAGE }}
+          namespace: ${{ env.NAMESPACE }}
+          app_name: ${{ env.APP_NAME }}
+          project_id: ${{ env.PROJECT_ID }}
 
   deploy-prod:
     needs: tests
