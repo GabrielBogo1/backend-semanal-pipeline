@@ -25,6 +25,7 @@ jobs:
         run: ./mvnw test
 
   deploy-stage:
+    deploy-stage:
     needs: tests
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
@@ -53,29 +54,23 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Build Docker image
-
         run: |
-
           docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} .
 
-
       - name: Push para Artifact Registry
-
         run: |
-
           gcloud auth configure-docker us-central1-docker.pkg.dev
-
-          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} 
+          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
 
       - name: Deploy para GKE
-        uses: google-github-actions/deploy-gke@main
+        uses: google-github-actions/deploy-gke@v1.1.0 # Use a versão estável aqui
         with:
           cluster_name: meu-cluster-cicd
           location: us-central1-a
-          credentials: ${{ secrets.GCP_SA_KEY }}
           image: us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
           namespace: stage # Use o namespace correto
-          deployment_name: backend # Nome do seu Deployment no Kubernetes
+          app_name: backend # Nome do seu Deployment no Kubernetes
+          project_id: cluster-mensal # Adicione o ID do projeto
 
   deploy-prod:
     needs: tests
