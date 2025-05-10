@@ -52,6 +52,10 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
+      - name: Gerar deployment com variáveis
+        run: |
+          sed "s|\${DB_URL}|jdbc:postgresql://postgres-service:5432/banco_mensal|" k8s/backend-stage/backend-template.yaml > k8s/backend-stage/backend-deployment.yaml
+
       - name: Build Docker image
         run: |
           docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} .
@@ -60,7 +64,7 @@ jobs:
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
           docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
-
+      
       - name: Deploy para GKE
         uses: google-github-actions/deploy-gke@main
         env:
