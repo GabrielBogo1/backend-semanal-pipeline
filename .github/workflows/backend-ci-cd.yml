@@ -65,8 +65,8 @@ jobs:
 
       - name: Configurar kubectl e fazer deploy
         run: |
-          # Baixar a chave do repositório do Google Cloud
-          curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg -o /usr/share/keyrings/cloud.google.gpg
+          # Adicionar a chave do repositório do Google Cloud usando apt-key
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C0BA5CE6DC6315A3
 
           # Adicionar o repositório do Google Cloud
           echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
@@ -76,8 +76,8 @@ jobs:
           sudo apt-get install -y google-cloud-cli google-cloud-cli-gke-gcloud-auth-plugin
 
           gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
-          kubectl config set-context --current --namespace=stage
-          kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
+          kubectl config set-context --current --namespace=production
+          kubectl apply -f k8s/backend/
 
   deploy-prod:
     needs: tests
