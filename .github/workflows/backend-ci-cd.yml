@@ -1,4 +1,4 @@
-name: CI/CD Backend
+Pipeline de CI/CD para GKE com GitHub ActionsCom base no seu arquivo yaml, vou te ajudar a criar um pipeline mais robusto e eficiente para o deploy no GKE. Segue o código completo do workflow e depois explico os principais pontos e melhorias.name: CI/CD Backend
 
 on:
   push:
@@ -54,40 +54,28 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Build Docker image
+      - name: Build e push da imagem Docker
         run: |
-          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} .
+          IMAGE_NAME=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2
+          TAG=dev-${{ github.sha }}
+          docker build -t ${IMAGE_NAME}:${TAG} .
+          docker push ${IMAGE_NAME}:${TAG}
+          echo "IMAGE_TAG=${IMAGE_NAME}:${TAG}" >> $GITHUB_ENV # Exporta a tag para os próximos passos
 
-      - name: Push para Artifact Registry
-        run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
-
-      - name: Configurar kubectl e fazer deploy
-        run: |
-          # Baixar a chave do repositório do Google Cloud para um arquivo
-          curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg -o google-cloud-key.gpg
-
-          # Adicionar a chave baixada ao apt-key
-          sudo apt-key add google-cloud-key.gpg
-
-          # Adicionar o repositório do Google Cloud
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-
-          # Instalar o componente gke-gcloud-auth-plugin usando apt-get
-          sudo apt-get update
-          sudo apt-get install -y google-cloud-cli google-cloud-cli-gke-gcloud-auth-plugin
-
-          gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
-          kubectl config set-context --current --namespace=stage
-          kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
+      - name: Deploy para GKE
+        uses: google-github-actions/deploy-gke@v1
+        with:
+          cluster_name: meu-cluster-cicd
+          location: us-central1-a
+          credentials: ${{ secrets.GCP_SA_KEY }}
+          image: ${{ env.IMAGE_TAG }}
+          namespace: stage # Use o namespace correto
+          deployment_name: backend # Nome do seu Deployment no Kubernetes
 
   deploy-prod:
     needs: tests
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    container:
-      image: google/cloud-sdk:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -97,14 +85,28 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Configurar kubectl e fazer deploy
-        run: |
-          # Instalar o componente gke-gcloud-auth-plugin
-          gcloud components install gke-gcloud-auth-plugin --quiet
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
 
-          gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
-          kubectl config set-context --current --namespace=production
-          kubectl apply -f k8s/backend/
+      - name: Build e push da imagem Docker
+        run: |
+          IMAGE_NAME=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2
+          TAG=prod-${{ github.sha }}
+          docker build -t ${IMAGE_NAME}:${TAG} .
+          docker push ${IMAGE_NAME}:${TAG}
+          echo "IMAGE_TAG=${IMAGE_NAME}:${TAG}" >> $GITHUB_ENV # Exporta a tag
+
+      - name: Deploy para GKE
+        uses: google-github-actions/deploy-gke@v1
+        with:
+          cluster_name: meu-cluster-cicd
+          location: us-central1-a
+          credentials: ${{ secrets.GCP_SA_KEY }}
+          image: ${{ env.IMAGE_TAG }}
+          namespace: production # Use o namespace correto
+          deployment_name: backend # Nome do seu Deployment no Kubernetes
+          # Substitui o apply -f
+          # k8s_manifests: k8s/backend/deployment.yaml # Caminho para o arquivo de deployment
 
   release:
     if: github.ref == 'refs/heads/release'
@@ -133,16 +135,13 @@ jobs:
       - name: Setup Docker
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Build e push da imagem Docker
         run: |
-          docker build -t backend-kubernetes2:release-${{ github.sha }} .
-          echo "Build completo"
-
-      - name: Push para Artifact Registry
-        run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker tag backend-kubernetes2:release-${{ github.sha }} us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:release-${{ github.sha }}
-          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:release-${{ github.sha }}
+          IMAGE_NAME=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2
+          TAG=release-${{ github.sha }}
+          docker build -t ${IMAGE_NAME}:${TAG} .
+          docker push ${IMAGE_NAME}:${TAG}
+          echo "IMAGE_TAG=${IMAGE_NAME}:${TAG}" >> $GITHUB_ENV # Exporta a tag
 
       - name: Criar payload do Slack
         run: |
