@@ -66,8 +66,8 @@ jobs:
       - name: Configurar kubectl e fazer deploy
         run: |
           gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
-          kubectl config set-context --current --namespace=stage
-          kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
+          kubectl apply -f k8s/backend-stage/
+          kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} -n stage
 
   deploy-prod:
     needs: tests
