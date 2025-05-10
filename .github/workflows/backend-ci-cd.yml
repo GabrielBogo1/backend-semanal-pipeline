@@ -52,10 +52,6 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Gerar deployment com variáveis
-        run: |
-          sed "s|\${DB_URL}|jdbc:postgresql://postgres-service:5432/banco_mensal|" k8s/backend-stage/backend-template.yaml > k8s/backend-stage/backend-deployment.yaml
-
       - name: Build Docker image
         run: |
           docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} .
@@ -65,27 +61,18 @@ jobs:
           gcloud auth configure-docker us-central1-docker.pkg.dev
           docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
       
-      - name: Deploy para GKE
-        uses: google-github-actions/deploy-gke@main
-        env:
-          CLUSTER_NAME: meu-cluster-cicd
-          REGION: us-central1-a # Alterado de LOCATION para REGION
-          IMAGE: us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
-          NAMESPACE: stage
-          APP_NAME: backend
-          PROJECT_ID: cluster-mensal
-        with:
-          cluster_name: ${{ env.CLUSTER_NAME }}
-          region: ${{ env.REGION }} # Alterado de LOCATION para REGION
-          image: ${{ env.IMAGE }}
-          namespace: ${{ env.NAMESPACE }}
-          app_name: ${{ env.APP_NAME }}
-          project_id: ${{ env.PROJECT_ID }}
+      - name: Configurar kubectl e fazer deploy
+        run: |
+          gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
+          kubectl config set-context --current --namespace=production
+          kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
 
   deploy-prod:
     needs: tests
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    container:
+      image: google/cloud-sdk:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3

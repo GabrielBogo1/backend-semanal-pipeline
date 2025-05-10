@@ -31,6 +31,8 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
+
+    //testando de nivi
     @GetMapping("/{id}")
     public ResponseEntity<Product> findByIDPath(@PathVariable("id") final Long id) {
         final Product product = this.productRepository.findById(id).orElse(null);
@@ -38,7 +40,8 @@ public class ProductController {
     }
 
  
-    //dqwdqwdwqdwq
+    //dqwdqwdwqdwqdqwdwqdqwdqwdwqdwqdwq
+    //teste
     @GetMapping("/health")
     public ResponseEntity<String> checkHealth() {
         return ResponseEntity.ok("API funcionando corretamente.");
@@ -48,6 +51,11 @@ public class ProductController {
     public ResponseEntity<List<Product>> listAll() {
         return ResponseEntity.ok(this.productRepository.findAll());
     }
+
+    //@GetMapping
+    //public ResponseEntity<List<Product>> listAll() {
+      //  return ResponseEntity.ok(this.productRepository.findAll());
+    //}
 
     @PostMapping
     public ResponseEntity <HttpStatus> createProduct(@RequestBody final Product product) {
