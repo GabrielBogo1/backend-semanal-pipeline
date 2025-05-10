@@ -30,8 +30,6 @@ jobs:
     needs: tests
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
-    container:
-      image: google/cloud-sdk:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -41,11 +39,20 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
+      - name: Build Docker image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} .
+
+      - name: Push para Artifact Registry
+        run: |
+          echo ${{ secrets.GCP_SA_KEY }} | docker login -u _json_key --password-stdin https://us-central1-docker.pkg.dev
+          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
+
       - name: Configurar kubectl e fazer deploy
         run: |
           gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
           kubectl config set-context --current --namespace=stage
-          kubectl apply -f k8s/backend/
+          kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
 
   deploy-prod:
     needs: tests
