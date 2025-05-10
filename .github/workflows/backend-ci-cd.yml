@@ -62,14 +62,21 @@ jobs:
           docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
 
       - name: Deploy para GKE
-        uses: google-github-actions/deploy-gke@main # Use a versão estável aqui
+        uses: google-github-actions/deploy-gke@v1 # Use uma versão específica aqui
+        env:
+          CLUSTER_NAME: meu-cluster-cicd
+          GKE_LOCATION: us-central1-a
+          GKE_IMAGE: us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
+          GKE_NAMESPACE: stage
+          GKE_APP_NAME: backend
+          GKE_PROJECT_ID: cluster-mensal
         with:
-          cluster_name: meu-cluster-cicd
-          location: us-central1-a
-          image: us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
-          namespace: stage # Use o namespace correto
-          app_name: backend # Nome do seu Deployment no Kubernetes
-          project_id: cluster-mensal # Adicione o ID do projeto
+          cluster_name: ${{ env.CLUSTER_NAME }} # Passa as variáveis de ambiente para a ação
+          location: ${{ env.GKE_LOCATION }}
+          image: ${{ env.GKE_IMAGE }}
+          namespace: ${{ env.GKE_NAMESPACE }}
+          app_name: ${{ env.GKE_APP_NAME }}
+          project_id: ${{ env.GKE_PROJECT_ID }}
 
   deploy-prod:
     needs: tests
