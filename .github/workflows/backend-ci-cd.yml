@@ -141,13 +141,14 @@ jobs:
       - name: Setup Docker
         uses: docker/setup-buildx-action@v3
 
-      - name: Build e push da imagem Docker
+      - name: Build Docker image
         run: |
-          IMAGE_NAME=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2
-          TAG=release-${{ github.sha }}
-          docker build -t ${IMAGE_NAME}:${TAG} .
-          docker push ${IMAGE_NAME}:${TAG}
-          echo "IMAGE_TAG=${IMAGE_NAME}:${TAG}" >> $GITHUB_ENV # Exporta a tag
+          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:release-${{ github.sha }} .
+
+      - name: Push para Artifact Registry
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:release-${{ github.sha }}
 
       - name: Criar payload do Slack
         run: |
