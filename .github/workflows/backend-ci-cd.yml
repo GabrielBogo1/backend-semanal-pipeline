@@ -85,25 +85,20 @@ jobs:
       - name: Setup Docker
         uses: docker/setup-buildx-action@v3
 
-      - name: Build e push da imagem Docker
+      - name: Build Docker image
         run: |
-          IMAGE_NAME=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2
-          TAG=prod-${{ github.sha }}
-          docker build -t ${IMAGE_NAME}:${TAG} .
-          docker push ${IMAGE_NAME}:${TAG}
-          echo "IMAGE_TAG=${IMAGE_NAME}:${TAG}" >> $GITHUB_ENV # Exporta a tag
+          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:prod-${{ github.sha }} .
 
-      - name: Deploy para GKE
-        uses: google-github-actions/deploy-gke@v1
-        with:
-          cluster_name: meu-cluster-cicd
-          location: us-central1-a
-          credentials: ${{ secrets.GCP_SA_KEY }}
-          image: ${{ env.IMAGE_TAG }}
-          namespace: production # Use o namespace correto
-          deployment_name: backend # Nome do seu Deployment no Kubernetes
-          # Substitui o apply -f
-          # k8s_manifests: k8s/backend/deployment.yaml # Caminho para o arquivo de deployment
+      - name: Push para Artifact Registry
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:prod-${{ github.sha }}
+      
+      - name: Configurar kubectl e fazer deploy
+        run: |
+          gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
+          kubectl apply -f k8s/backend/
+          kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:prod-${{ github.sha }} -n production
 
   release:
     if: github.ref == 'refs/heads/release'
