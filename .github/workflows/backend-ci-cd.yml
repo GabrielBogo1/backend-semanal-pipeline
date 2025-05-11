@@ -73,9 +73,23 @@ jobs:
     needs: tests
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    container:
+      image: google/cloud-sdk:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Dar permissão de execução ao Maven Wrapper
+        run: chmod +x ./mvnw
+
+      - name: Build do JAR com Maven
+        run: ./mvnw package -DskipTests
 
       - name: Autenticar com GCP
         uses: google-github-actions/auth@v1
