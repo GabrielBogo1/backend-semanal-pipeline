@@ -152,7 +152,8 @@ jobs:
 
       - name: Criar payload do Slack
         run: |
-          echo "{\"text\":\"Nova release publicada para pré-produção: ${{ github.ref }}\"}" > slack-payload.json
+          VERSION=$(echo "${{ github.ref }}" | sed 's|refs/heads/release/||')
+          echo "{\"text\":\"Nova release publicada! Versao: $VERSION\"}" > slack-payload.json
 
       - name: Notificação Slack
         uses: slackapi/slack-github-action@v1.24.0
