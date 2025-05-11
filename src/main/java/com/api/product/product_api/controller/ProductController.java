@@ -40,11 +40,14 @@ public class ProductController {
     }
 
  
-    //dqwdqwdwqdwqdqwdwqdqwdqwdwqdwqdwq
-    //teste
-    @GetMapping("/health")
-    public ResponseEntity<String> checkHealth() {
-        return ResponseEntity.ok("API funcionando corretamente.");
+    @GetMapping("/testeProd")
+    public String testeProducao() {
+        return "TESTE PRODUÇÃO";
+    }
+
+    @GetMapping("/testeStage")
+    public String testeStage() {
+        return "TESTE STAGE";
     }
 
     @GetMapping
@@ -52,10 +55,7 @@ public class ProductController {
         return ResponseEntity.ok(this.productRepository.findAll());
     }
 
-    //@GetMapping
-    //public ResponseEntity<List<Product>> listAll() {teses
-      //  return ResponseEntity.ok(this.productRepository.findAll());dwqdqwdqwdwqdwqdwqdwqdwqdqwdqwdwqdwqdwqdqwqwddwqdqwdwqdwqtestdwqdwqe
-    //}dwqdqwdqw
+
 
     @PostMapping
     public ResponseEntity <HttpStatus> createProduct(@RequestBody final Product product) {
