@@ -31,20 +31,20 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
-
-    //testando de nivi
     @GetMapping("/{id}")
     public ResponseEntity<Product> findByIDPath(@PathVariable("id") final Long id) {
         final Product product = this.productRepository.findById(id).orElse(null);
         return ResponseEntity.ok(product);
     }
 
- 
-    //dqwdqwdwqdwqdqwdwqdqwdqwdwqdwqdwq
-    //teste
-    @GetMapping("/health")
-    public ResponseEntity<String> checkHealth() {
-        return ResponseEntity.ok("API funcionando corretamente.");
+    @GetMapping("/testeProd")
+    public String testeProducao() {
+        return "TESTE PRODUÇÃO";
+    }
+
+    @GetMapping("/testeStage")
+    public String testeStage() {
+        return "TESTE STAGE";
     }
 
     @GetMapping
