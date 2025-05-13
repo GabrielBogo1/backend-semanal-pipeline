@@ -36,15 +36,15 @@ public class ProductController {
         final Product product = this.productRepository.findById(id).orElse(null);
         return ResponseEntity.ok(product);
     }
-
+ 
     @GetMapping("/testeProd")
     public String testeProducao() {
-        return "TESTE PRODUÇÃO";
+        return "TESTE PRODUÇÃO 2";
     }
 
     @GetMapping("/testeStage")
     public String testeStage() {
-        return "TESTE STAGE";
+        return "TESTE STAGE 2";
     }
 
     @GetMapping
@@ -52,10 +52,6 @@ public class ProductController {
         return ResponseEntity.ok(this.productRepository.findAll());
     }
 
-    //@GetMapping
-    //public ResponseEntity<List<Product>> listAll() {teses
-      //  return ResponseEntity.ok(this.productRepository.findAll());dwqdqwdqwdwqdwqdwqdwqdwqdqwdqwdwqdwqdwqdqwqwddwqdqwdwqdwqteste
-    //}
 
     @PostMapping
     public ResponseEntity <HttpStatus> createProduct(@RequestBody final Product product) {
