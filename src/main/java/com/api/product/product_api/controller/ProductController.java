@@ -40,11 +40,9 @@ public class ProductController {
     }
 
  
-    //dqwdqwdwqdwqdqwdwqdqwdqwdwqdwqdwq
-    //teste
-    @GetMapping("/health")
-    public ResponseEntity<String> checkHealth() {
-        return ResponseEntity.ok("API funcionando corretamente.");
+    @GetMapping("/testeStage")
+    public String testeStage() {
+        return "TESTE STAGE 2";
     }
 
     @GetMapping
