@@ -3,7 +3,7 @@ on:
     branches:
       - dev
       - main
-      - 'release/*'
+      - release
 
 jobs:
   tests:
@@ -115,7 +115,7 @@ jobs:
           kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:prod-${{ github.sha }} -n production
 
   release:
-    if: startsWith(github.ref, 'refs/heads/release/')
+    if: github.ref == 'refs/heads/release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -152,7 +152,8 @@ jobs:
 
       - name: Criar payload do Slack
         run: |
-          echo "{\"text\":\"Nova release publicada!"}" > slack-payload.json
+          VERSION=$(echo "${{ github.ref }}" | sed 's|refs/heads/release/||')
+          echo "{\"text\":\"Nova release publicada! Versao: $VERSION\"}" > slack-payload.json
 
       - name: Notificação Slack
         uses: slackapi/slack-github-action@v1.24.0

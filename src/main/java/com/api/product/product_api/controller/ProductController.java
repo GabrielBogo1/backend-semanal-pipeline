@@ -31,20 +31,20 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
+
+    //testando de nivi
     @GetMapping("/{id}")
     public ResponseEntity<Product> findByIDPath(@PathVariable("id") final Long id) {
         final Product product = this.productRepository.findById(id).orElse(null);
         return ResponseEntity.ok(product);
     }
- 
-    @GetMapping("/testeProd")
-    public String testeProducao() {
-        return "TESTE PRODUÇÃO";
-    }
 
-    @GetMapping("/testeStage")
-    public String testeStage() {
-        return "TESTE STAGE 2";
+ 
+    //dqwdqwdwqdwqdqwdwqdqwdqwdwqdwqdwq
+    //teste
+    @GetMapping("/health")
+    public ResponseEntity<String> checkHealth() {
+        return ResponseEntity.ok("API funcionando corretamente.");
     }
 
     @GetMapping
@@ -52,6 +52,10 @@ public class ProductController {
         return ResponseEntity.ok(this.productRepository.findAll());
     }
 
+    //@GetMapping
+    //public ResponseEntity<List<Product>> listAll() {teses
+      //  return ResponseEntity.ok(this.productRepository.findAll());dwqdqwdqwdwqdwqdwqdwqdwqdqwdqwdwqdwqdwqdqwqwddwqdqwdwqdwq
+    //}
 
     @PostMapping
     public ResponseEntity <HttpStatus> createProduct(@RequestBody final Product product) {
