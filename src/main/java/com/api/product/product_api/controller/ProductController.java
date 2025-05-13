@@ -42,7 +42,7 @@ public class ProductController {
  
     @GetMapping("/testeStage")
     public String testeStage() {
-        return "TESTE STAGE 2";
+        return "TESTE STAGE 3";
     }
 
     @GetMapping
