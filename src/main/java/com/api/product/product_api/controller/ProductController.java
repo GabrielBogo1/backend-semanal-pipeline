@@ -42,11 +42,6 @@ public class ProductController {
         return "TESTE PRODUÇÃO 2";
     }
 
-    @GetMapping("/testeStage")
-    public String testeStage() {
-        return "TESTE STAGE 2";
-    }
-
     @GetMapping
     public ResponseEntity<List<Product>> listAll() {
         return ResponseEntity.ok(this.productRepository.findAll());
