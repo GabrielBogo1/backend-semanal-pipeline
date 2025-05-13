@@ -39,7 +39,7 @@ public class ProductController {
  
     @GetMapping("/testeProd")
     public String testeProducao() {
-        return "TESTE PRODUÇÃO 2";
+        return "TESTE PRODUÇÃO 3";
     }
 
     @GetMapping
