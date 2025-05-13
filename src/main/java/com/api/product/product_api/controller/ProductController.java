@@ -52,10 +52,6 @@ public class ProductController {
         return ResponseEntity.ok(this.productRepository.findAll());
     }
 
-    //@GetMapping
-    //public ResponseEntity<List<Product>> listAll() {teses
-      //  return ResponseEntity.ok(this.productRepository.findAll());dwqdqwdqwdwqdwqdwqdwqdwqdqwdqwdwqdwqdwqdqwqwddwqdqwdwqdwqteste
-    //}
 
     @PostMapping
     public ResponseEntity <HttpStatus> createProduct(@RequestBody final Product product) {
