@@ -45,6 +45,8 @@ public class ProductController {
         return "TESTE PRODUÇÃO";
     }
 
+
+    //teste
     @GetMapping("/testeStage")
     public String testeStage() {
         return "TESTE STAGE";
