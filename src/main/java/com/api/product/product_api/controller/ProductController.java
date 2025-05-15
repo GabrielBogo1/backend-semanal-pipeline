@@ -50,6 +50,8 @@ public class ProductController {
         return ResponseEntity.ok(this.productRepository.findAll());
     }
 
+    // teowqijqwiojdwqio
+
     //@GetMapping
     //public ResponseEntity<List<Product>> listAll() {teses
       //  return ResponseEntity.ok(this.productRepository.findAll());dwqdqwdqwdwqdwqdwqdwqdwqdqwdqwdwqdwqdwqdqwqwddwqdqwdwqdwq
