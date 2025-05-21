@@ -31,6 +31,11 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
+     @GetMapping("/teste")
+    public String testar() {
+        return "Resposta do Spring Boot MAIN";
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Product> findByIDPath(@PathVariable("id") final Long id) {
         final Product product = this.productRepository.findById(id).orElse(null);
