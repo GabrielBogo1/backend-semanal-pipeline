@@ -31,7 +31,7 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
-     @GetMapping("/teste")
+    @GetMapping("/teste")
     public String testar() {
         return "Resposta do Spring Boot MAIN";
     }
