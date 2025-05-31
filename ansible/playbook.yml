@@ -56,6 +56,7 @@
       git:
         repo: 'https://github.com/GabrielBogo1/backend-semanal-pipeline'
         dest: /home/gabriel/app/
+        force: yes
 
     - name: Rebuildar imagem e subir container atualizado
       shell: docker compose up -d --build
