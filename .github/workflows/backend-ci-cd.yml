@@ -46,9 +46,7 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          cat <<EOF > ~/.ssh/google_compute_engine
-          ${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}
-          EOF
+          echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/google_compute_engine
           chmod 600 ~/.ssh/google_compute_engine
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/google_compute_engine
