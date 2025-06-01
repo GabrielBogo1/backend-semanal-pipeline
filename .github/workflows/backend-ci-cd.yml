@@ -28,7 +28,7 @@ jobs:
       - name: Run Ansible Playbook (Database)
         run: |
           export ANSIBLE_HOST_KEY_CHECKING=False
-            ansible-playbook -i $GITHUB_WORKSPACE/database/ansible/inventory.ini $GITHUB_WORKSPACE/database/ansible/playbook.yml
+          ansible-playbook -i ansible-database/inventory.ini ansible-database/playbook.yml
 
       - name: Run Ansible Playbook (Backend)
         run: |
