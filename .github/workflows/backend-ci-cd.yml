@@ -25,11 +25,6 @@ jobs:
           echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" > ~/.ssh/google_compute_engine
           chmod 600 ~/.ssh/google_compute_engine
       
-      - name: Run Ansible Playbook (Database)
-        run: |
-          export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i ansible/ansible-database/inventory.ini ansible/ansible-database/playbook.yml
-
       - name: Run Ansible Playbook (Backend)
         run: |
           export ANSIBLE_HOST_KEY_CHECKING=False
