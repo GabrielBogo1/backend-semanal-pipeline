@@ -169,8 +169,8 @@ resource "google_compute_firewall" "allow_backend_to_db" {
     ports    = ["5432"]
   }
 
-  source_ranges = [google_compute_instance.backend_vm.network_interface[0].network_ip]
-  target_tags   = ["db"]
+  source_ranges = ["10.128.0.0/20"]
+  target_tags   = ["db", "backend-app"]
 }
 
 resource "google_compute_firewall" "allow_openvpn" {
