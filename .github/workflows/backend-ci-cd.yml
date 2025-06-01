@@ -36,4 +36,5 @@ jobs:
           terraform apply -auto-approve
 
       - name: Rodar Ansible - Configurar backend
+        working-directory: ansible
         run: ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
