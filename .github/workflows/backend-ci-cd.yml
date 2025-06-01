@@ -14,6 +14,26 @@ jobs:
       GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply
+
       - name: Setup Python & Ansible
         run: |
           sudo apt update
@@ -24,8 +44,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" > ~/.ssh/google_compute_engine
           chmod 600 ~/.ssh/google_compute_engine
-      
-      - name: Run Ansible Playbook (Backend)
+
+      - name: Run Ansible Playbook
         run: |
           export ANSIBLE_HOST_KEY_CHECKING=False
           ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
