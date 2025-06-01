@@ -29,5 +29,5 @@ public class Product {
 //    private Double price;
 //
 //    @Column(name = "imagem_produto")
-//    private String imageUrl;
+//    private String imageUrl;dqwdqwdqw
 }
