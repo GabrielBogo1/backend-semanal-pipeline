@@ -34,9 +34,6 @@ jobs:
         run: |
           terraform init
           terraform apply -auto-approve
-      
-      - name: Adicionar chave SSH da VM ao known_hosts
-        run: ssh-keyscan 10.128.0.3 >> ~/.ssh/known_hosts
 
       - name: Rodar Ansible - Configurar backend
         run: ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
