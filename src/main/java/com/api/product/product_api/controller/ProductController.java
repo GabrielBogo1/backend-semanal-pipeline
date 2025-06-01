@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.product.product_api.entity.Product;
 import com.api.product.product_api.repository.ProductRepository;
 import com.api.product.product_api.service.ProductService;
-//dqwiodqwjjiqdwjioqdwijo
+//dqwiodqwjjiqdwjioqdwijodsadas
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value = "/api/product")
