@@ -26,9 +26,11 @@ jobs:
           chmod 600 ~/.ssh/google_compute_engine
       
       - name: Run Ansible Playbook (Database)
+        working-directory: ./database/ansible
         run: |
           export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i database/ansible/inventory.ini database/ansible/playbook.yml
+          ansible-playbook -i inventory.ini playbook.yml
+
 
       - name: Run Ansible Playbook (Backend)
         run: |
