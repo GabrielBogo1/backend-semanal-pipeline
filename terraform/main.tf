@@ -108,14 +108,6 @@ resource "google_compute_instance" "vpn_host" {
     network = google_compute_network.vpc_network.name
     access_config {}
   }
-
-  metadata_startup_script = <<-EOT
-    #!/bin/bash
-    apt update
-    apt install -y openvpn easy-rsa
-  EOT
-}
-
 # =======================
 # FIREWALL RULES
 # =======================

@@ -18,8 +18,8 @@
 
     - name: Permitir acesso de rede interna no pg_hba.conf
       lineinfile:
-        path: /etc/postgresql/14/main/pg_hba.conf
-        line: "host all all 10.0.0.0/8 md5"
+        path: /etc/postgresql/12/main/pg_hba.conf
+        line: "host all all 10.128.0.3/32 md5"
         insertafter: EOF
         create: yes
 

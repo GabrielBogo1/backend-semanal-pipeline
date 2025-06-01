@@ -1,162 +1,36 @@
-# on:
-#   push:
-#     branches:
-#       - dev
-#       - main
-#       - 'release/*'
+name: Deploy Infra + App
 
-# jobs:
-#   tests:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v3
+on:
+  push:
+    branches:
+      - main
 
-#       - name: Setup JDK 21
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: 'temurin'
-#           java-version: '21'
+jobs:
+  deploy:
+    name: Terraform + Ansible Deploy
+    runs-on: ubuntu-latest
 
-#       - name: Dar permissão de execução ao Maven Wrapper
-#         run: chmod +x ./mvnw
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
-#       - name: Rodar testes
-#         run: ./mvnw test -Dspring.profiles.active=test
+    steps:
+      - name: Setup Python & Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible sshpass
 
-#   deploy-stage:
-#     needs: tests
-#     if: github.ref == 'refs/heads/dev'
-#     runs-on: ubuntu-latest
-#     container:
-#       image: google/cloud-sdk:latest
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v3
-
-#       - name: Setup JDK 21
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: 'temurin'
-#           java-version: '21'
-
-#       - name: Dar permissão de execução ao Maven Wrapper
-#         run: chmod +x ./mvnw
-
-#       - name: Build do JAR com Maven
-#         run: ./mvnw package -DskipTests
-
-#       - name: Setup Docker
-#         uses: docker/setup-buildx-action@v3
-
-#       - name: Autenticar com GCP
-#         uses: google-github-actions/auth@v1
-#         with:
-#           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-#       - name: Build Docker image
-#         run: |
-#           docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} .
-
-#       - name: Push para Artifact Registry
-#         run: |
-#           gcloud auth configure-docker us-central1-docker.pkg.dev
-#           docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }}
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" > ~/.ssh/google_compute_engine
+          chmod 600 ~/.ssh/google_compute_engine
       
-#       - name: Configurar kubectl e fazer deploy
-#         run: |
-#           gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
-#           kubectl apply -f k8s/backend-stage/
-#           kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:dev-${{ github.sha }} -n stage
+      - name: Run Ansible Playbook (Database)
+        run: |
+          export ANSIBLE_HOST_KEY_CHECKING=False
+          ansible-playbook -i database/ansible/inventory.ini ansible/playbook.yml
 
-#   deploy-prod:
-#     needs: tests
-#     if: github.ref == 'refs/heads/main'
-#     runs-on: ubuntu-latest
-#     container:
-#       image: google/cloud-sdk:latest
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v3
-
-#       - name: Setup JDK 21
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: 'temurin'
-#           java-version: '21'
-
-#       - name: Dar permissão de execução ao Maven Wrapper
-#         run: chmod +x ./mvnw
-
-#       - name: Build do JAR com Maven
-#         run: ./mvnw package -DskipTests
-
-#       - name: Autenticar com GCP
-#         uses: google-github-actions/auth@v1
-#         with:
-#           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-#       - name: Setup Docker
-#         uses: docker/setup-buildx-action@v3
-
-#       - name: Build Docker image
-#         run: |
-#           docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:prod-${{ github.sha }} .
-
-#       - name: Push para Artifact Registry
-#         run: |
-#           gcloud auth configure-docker us-central1-docker.pkg.dev
-#           docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:prod-${{ github.sha }}
-      
-#       - name: Configurar kubectl e fazer deploy
-#         run: |
-#           gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
-#           kubectl apply -f k8s/backend/
-#           kubectl set image deployment/backend backend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:prod-${{ github.sha }} -n production
-
-#   release:
-#     if: startsWith(github.ref, 'refs/heads/release/')
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v3
-
-#       - name: Setup JDK 21
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: 'temurin'
-#           java-version: '21'
-
-#       - name: Dar permissão de execução ao Maven Wrapper
-#         run: chmod +x ./mvnw
-
-#       - name: Build do JAR com Maven
-#         run: ./mvnw package -DskipTests
-
-#       - name: Autenticar com GCP
-#         uses: google-github-actions/auth@v1
-#         with:
-#           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-#       - name: Setup Docker
-#         uses: docker/setup-buildx-action@v3
-
-#       - name: Build Docker image
-#         run: |
-#           docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:release-${{ github.sha }} .
-
-#       - name: Push para Artifact Registry
-#         run: |
-#           gcloud auth configure-docker us-central1-docker.pkg.dev
-#           docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:release-${{ github.sha }}
-
-#       - name: Criar payload do Slack
-#         run: |
-#           echo "{\"text\":\"Nova release publicada!"}" > slack-payload.json
-
-#       - name: Notificação Slack
-#         uses: slackapi/slack-github-action@v1.24.0
-#         with:
-#           payload-file-path: ./slack-payload.json
-#         env:
-#           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Run Ansible Playbook (Backend)
+        run: |
+          export ANSIBLE_HOST_KEY_CHECKING=False
+          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
