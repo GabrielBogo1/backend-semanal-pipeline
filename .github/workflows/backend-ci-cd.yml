@@ -1,42 +1,27 @@
-name: Deploy Infra + App
+name: Deploy Infra + Backend + DB
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
-    name: Terraform + Ansible Deploy
     runs-on: self-hosted
 
     steps:
-      - name: Checkout code
+      - name: Clonar repositório
         uses: actions/checkout@v3
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.5.0
-
-      - name: Terraform Init
-        working-directory: terraform
-        run: terraform init
-
-      - name: Terraform Validate
-        working-directory: terraform
-        run: terraform validate
-
-      - name: Terraform Apply
-        working-directory: terraform
-        run: terraform apply --auto-approve
-
-      - name: Setup Python & Ansible
+      - name: Instalar Ansible e Terraform no runner
         run: |
           sudo apt update
-          sudo apt install -y ansible sshpass
+          sudo apt install -y ansible terraform
 
-      - name: Run Ansible Playbook
+      - name: Provisionar infraestrutura com Terraform
+        working-directory: terraform
         run: |
-          export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Rodar Ansible - Configurar backend
+        run: ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
