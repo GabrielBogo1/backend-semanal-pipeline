@@ -39,13 +39,19 @@ jobs:
           sudo apt update
           sudo apt install -y ansible sshpass
 
+      - name: Debug secret length
+        run: |
+          echo "Key size: $(echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" | wc -c)"
+
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" > ~/.ssh/google_compute_engine
+          echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/google_compute_engine
           chmod 600 ~/.ssh/google_compute_engine
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/google_compute_engine
+
+
 
       - name: Run Ansible Playbook
         run: |
