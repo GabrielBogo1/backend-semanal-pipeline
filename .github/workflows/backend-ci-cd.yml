@@ -48,10 +48,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/google_compute_engine
           chmod 600 ~/.ssh/google_compute_engine
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/google_compute_engine
-
-
 
       - name: Run Ansible Playbook
         run: |
