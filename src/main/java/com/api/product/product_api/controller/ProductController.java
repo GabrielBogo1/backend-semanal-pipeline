@@ -33,7 +33,7 @@ public class ProductController {
 
     @GetMapping("/teste")
     public String testar() {
-        return "Resposta do Spring Boot MAIN";
+        return "Resposta do Spring Boot MAIN 2";
     }
 
     @GetMapping("/{id}")
