@@ -12,11 +12,16 @@ jobs:
 
     env:
       GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+      # Adicione o IP público do seu Bastion Host aqui, se for estático
+      # Se o bastion for criado pelo Terraform, pegaremos o output
+      BASTION_HOST_IP: "35.193.78.222" # Ou deixe em branco se o Terraform gerencia e o output será usado
+      ANSIBLE_USER: "gabriel" # Usuário SSH para as máquinas
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # --- Terraform Steps ---
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -31,25 +36,95 @@ jobs:
         run: terraform validate
 
       - name: Terraform Apply
+        id: tf_apply # Dê um ID para referenciar os outputs
         working-directory: terraform
-        run: terraform apply --auto-approve
+        run: terraform apply -auto-approve
 
+      # --- Get Terraform Outputs (Exemplo) ---
+      # Você precisará definir esses outputs no seu código Terraform
+      # Exemplo em seu .tf:
+      # output "backend_instance_private_ip" { value = google_compute_instance.backend.network_interface[0].network_ip }
+      # output "bastion_instance_public_ip" { value = google_compute_instance.bastion.network_interface[0].access_config[0].nat_ip } # Se o bastion for gerenciado pelo TF
+      - name: Get Terraform Outputs
+        id: tf_outputs
+        working-directory: terraform
+        run: |
+          echo "backend_ip=$(terraform output -raw backend_instance_private_ip)" >> $GITHUB_OUTPUT
+          # Se o bastion também é criado pelo Terraform e você quer o IP dinamicamente:
+          # echo "bastion_ip=$(terraform output -raw bastion_instance_public_ip)" >> $GITHUB_OUTPUT
+
+      # --- Ansible Steps ---
       - name: Setup Python & Ansible
         run: |
-          sudo apt update
-          sudo apt install -y ansible sshpass
+          sudo apt-get update -qy
+          sudo apt-get install -qy python3-pip ansible sshpass
+          pip3 install google-auth # Se for usar módulos GCP do Ansible que precisam de autenticação
 
-      - name: Debug secret length
-        run: |
-          echo "Key size: $(echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" | wc -c)"
-
-      - name: Set up SSH key
+      - name: Set up SSH key and add to agent
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/google_compute_engine
-          chmod 600 ~/.ssh/google_compute_engine
+          echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/gcp_compute_key
+          chmod 600 ~/.ssh/gcp_compute_key
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/gcp_compute_key
+
+      - name: Generate Ansible Inventory
+        id: ansible_inventory
+        run: |
+          BACKEND_IP="${{ steps.tf_outputs.outputs.backend_ip }}"
+          # Use o IP do bastion do env var, ou do output do Terraform se disponível
+          ACTUAL_BASTION_IP="${{ env.BASTION_HOST_IP }}"
+          if [ -n "${{ steps.tf_outputs.outputs.bastion_ip }}" ]; then
+            ACTUAL_BASTION_IP="${{ steps.tf_outputs.outputs.bastion_ip }}"
+          fi
+
+          echo "Gerando inventory.ini com Backend IP: $BACKEND_IP e Bastion IP: $ACTUAL_BASTION_IP"
+
+          # Criar o diretório ansible se não existir
+          mkdir -p ansible
+
+          # Conteúdo do inventory.ini
+          # Usamos aspas simples para o ProxyCommand e escapamos as aspas internas
+          # Nota: ansible_ssh_private_key_file aqui se refere à chave que o Ansible (no runner) tentará usar *através* do túnel.
+          # O agente SSH se encarregará de fornecer a chave correta.
+          cat <<EOF > ansible/inventory.ini
+          [backend]
+          backend-instance ansible_host=${BACKEND_IP} ansible_user=${ANSIBLE_USER} ansible_ssh_private_key_file=~/.ssh/gcp_compute_key ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand="ssh -W %h:%p -q -A ${ANSIBLE_USER}@${ACTUAL_BASTION_IP} -i ~/.ssh/gcp_compute_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"'
+
+          [bastion]
+          bastion-host ansible_host=${ACTUAL_BASTION_IP} ansible_user=${ANSIBLE_USER} ansible_ssh_private_key_file=~/.ssh/gcp_compute_key ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+
+          [all:vars]
+          ansible_python_interpreter=/usr/bin/python3
+          EOF
+
+          echo "Conteúdo do ansible/inventory.ini gerado:"
+          cat ansible/inventory.ini
+
+      - name: Test SSH connection to Bastion (Optional Debug)
+        if: success() || failure() # Rodar mesmo se passos anteriores falharem, para debug
+        run: |
+          ACTUAL_BASTION_IP="${{ env.BASTION_HOST_IP }}"
+          if [ -n "${{ steps.tf_outputs.outputs.bastion_ip }}" ]; then
+            ACTUAL_BASTION_IP="${{ steps.tf_outputs.outputs.bastion_ip }}"
+          fi
+          echo "Testando SSH para o Bastion ${ANSIBLE_USER}@${ACTUAL_BASTION_IP}"
+          ssh -v -A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/gcp_compute_key ${ANSIBLE_USER}@${ACTUAL_BASTION_IP} "echo 'Conexão SSH com Bastion bem-sucedida'" || echo "Falha ao conectar ao Bastion"
+
+      - name: Test SSH connection to Backend via Bastion (Optional Debug)
+        if: success() || failure()
+        run: |
+          BACKEND_IP="${{ steps.tf_outputs.outputs.backend_ip }}"
+          ACTUAL_BASTION_IP="${{ env.BASTION_HOST_IP }}"
+          if [ -n "${{ steps.tf_outputs.outputs.bastion_ip }}" ]; then
+            ACTUAL_BASTION_IP="${{ steps.tf_outputs.outputs.bastion_ip }}"
+          fi
+          echo "Testando SSH para Backend ${ANSIBLE_USER}@${BACKEND_IP} via Bastion ${ACTUAL_BASTION_IP}"
+          ssh -v -A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand="ssh -W %h:%p -q -A ${ANSIBLE_USER}@${ACTUAL_BASTION_IP} -i ~/.ssh/gcp_compute_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -i ~/.ssh/gcp_compute_key ${ANSIBLE_USER}@${BACKEND_IP} "echo 'Conexão SSH com Backend via Bastion bem-sucedida'" || echo "Falha ao conectar ao Backend via Bastion"
+
 
       - name: Run Ansible Playbook
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False" # Já está no common_args, mas redundância não machuca
         run: |
-          export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
+          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml -v
