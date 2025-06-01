@@ -37,4 +37,5 @@ jobs:
 
       - name: Rodar Ansible - Configurar backend
         working-directory: ansible
-        run: ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
+        run: ansible-playbook -i inventory.ini playbook.yml
+
