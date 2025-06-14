@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: us-central1-docker.pkg.dev/cluster-mensal/meu-repo/backend-kubernetes2:prod
+          image: us-docker.pkg.dev/cluster-mensal-462916/gcr.io/backend:latest
           ports:
             - containerPort: 8080
           env:
